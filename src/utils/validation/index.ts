@@ -1,1 +1,2 @@
-export { default as createUserValidationSchema } from "./validation.user";
+export { default as userValidation } from "./user";
+export { default as projectValidation } from "./project";

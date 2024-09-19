@@ -9,7 +9,9 @@ export enum MODELS {
   USER = "user",
   PROJECT = "project",
   TASK = "task",
+  TEAM = "team",
   NOTIFICATION = "notification",
+  ERROR = "error",
 }
 
 export enum PROJECT_STATUS {

@@ -1,17 +1,10 @@
 import { Request, Response } from "express";
-import {
-  createProjectService,
-  deleteProjectService,
-  getAllProjectService,
-  getProjectService,
-  updateProjectService,
-  deleteProjectUserService
-} from "../services";
+import ProjectService from "../services/project";
 
-export const getProjectController = async (req: Request, res: Response) => {
-  const { projectId } = req.params;
+const getProject = async (req: Request, res: Response) => {
+  const { id: projectId } = req.params;
   try {
-    const { project } = await getProjectService(projectId);
+    const { project } = await ProjectService.getProject(projectId);
     res.status(201).json({ data: project, ok: true });
   } catch (error) {
     res.status(400).json({
@@ -21,9 +14,9 @@ export const getProjectController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllProjectController = async (_req: Request, res: Response) => {
+const getAllProject = async (_req: Request, res: Response) => {
   try {
-    const { projects } = await getAllProjectService();
+    const { projects } = await ProjectService.getAllProject();
     res.status(201).json({ data: projects, ok: true });
   } catch (error) {
     res.status(400).json({
@@ -33,9 +26,10 @@ export const getAllProjectController = async (_req: Request, res: Response) => {
   }
 };
 
-export const createProjectController = async (req: Request, res: Response) => {
+const createProject = async (req: Request, res: Response) => {
   try {
-    const Project = await createProjectService(req.body);
+    const { id: userId } = req.user;
+    const Project = await ProjectService.createProject(req.body, userId);
     res.status(201).json({ data: Project, ok: true });
   } catch (error) {
     res.status(400).json({
@@ -45,10 +39,10 @@ export const createProjectController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteProjectController = async (req: Request, res: Response) => {
-  const { ProjectId } = req.params;
+const deleteProject = async (req: Request, res: Response) => {
+  const { id: ProjectId, userId } = req.body;
   try {
-    const Project = await deleteProjectService(ProjectId);
+    const Project = await ProjectService.deleteProject(ProjectId);
     // delete all project in user
     // delete all task in project
     // delete project
@@ -61,10 +55,13 @@ export const deleteProjectController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteProjectUserController = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+const deleteProjectUser = async (req: Request, res: Response) => {
+  const { userId, projectId } = req.body;
   try {
-    const Project = await deleteProjectUserService(userId);
+    const Project = await ProjectService.deleteProjectUser({
+      userId,
+      projectId,
+    });
     // remove user from project
     // on user model remove project from user
     // remove user from task
@@ -78,12 +75,22 @@ export const deleteProjectUserController = async (req: Request, res: Response) =
 };
 
 // project can update {name, email}
-export const updateProjectController = async (req: Request, res: Response) => {
-  const { id, email, name, role } = req.body;
+const updateProject = async (req: Request, res: Response) => {
   try {
-    const { Project } = await updateProjectService({ id, email, name, role });
-    res.status(201).json({ data: Project, ok: true });
+    const { project } = await ProjectService.updateProject(req.body);
+    res.status(201).json({ data: project, ok: true });
   } catch (error) {
     res.status(400).json({ message: "Error updating Project", error });
   }
 };
+
+const ProjectController = {
+  getProject,
+  getAllProject,
+  createProject,
+  deleteProject,
+  deleteProjectUser,
+  updateProject,
+};
+
+export default ProjectController;

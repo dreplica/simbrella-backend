@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import { TASK_STATUS, MODELS } from "../../utils/constants";
-import { TaskInterface } from "../../types/models";
+import { TaskInterface } from "../../@types/models";
 
 
 const taskSchema = new Schema<TaskInterface>(
@@ -25,13 +25,13 @@ const taskSchema = new Schema<TaskInterface>(
       type: Schema.Types.ObjectId,
       ref: "user",
     },
-    team: {
+    project: {
       type: Schema.Types.ObjectId,
       ref: "project",
     },
     comments: [
       {
-        user: { type: Schema.Types.ObjectId, ref: "user" },
+        user: { type: Schema.Types.ObjectId, ref: "user"},
         message: { type: String },
       },
     ],

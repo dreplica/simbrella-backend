@@ -1,10 +1,10 @@
 export interface ProjectInterface {
-  id: string
+  id?: string
   title: string;
   description: string;
   creator: Schema.Types.ObjectId | string;
-  tasks: string[];
-  teams: string[];
+  tasks?: string[];
+  teams?: string[];
   status: PROJECT_STATUS;
 }
 
@@ -19,7 +19,7 @@ export interface TaskInterface {
   creator: Schema.Types.ObjectId | string;
   assigned: Schema.Types.ObjectId | string;
   user: Schema.Types.ObjectId | string;
-  team: Schema.Types.ObjectId | string;
+  project: Schema.Types.ObjectId | string;
   comments: CommentTypes[];
   status: TASK_STATUS;
 }
@@ -43,4 +43,13 @@ export interface NotificationInterface {
   has_url: boolean;
   url: string;
   status: NOTIFICATION_STATUS;
+}
+
+export interface TeamsInterface {
+  id: string
+  creator: Schema.Types.ObjectId | string;
+  name: string;
+  slug: string;
+  users: Schema.Types.ObjectId[] | string[];
+  projects: Schema.Types.ObjectId[] | string[];
 }

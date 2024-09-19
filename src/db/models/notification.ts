@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 import { NOTIFICATION_STATUS, MODELS } from "../../utils/constants";
-import { NotificationInterface } from "../../types/models";
+import { NotificationInterface } from "../../@types/models";
 
 const notificationSchema = new Schema<NotificationInterface>(
   {

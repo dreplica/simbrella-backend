@@ -1,5 +1,5 @@
-export * from './user';
-export * from './auth';
-export * from './project';
-export * from './task';
-export * from './notification';
+export { default as userService } from "./user";
+export { default as authService } from "./auth";
+export { default as projectService } from "./project";
+export { default as taskService } from "./task";
+export { default as notificationService } from "./notification";

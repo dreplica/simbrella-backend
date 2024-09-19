@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 import { MODELS, PROJECT_STATUS } from "../../utils/constants";
-import { ProjectInterface } from "../../types/models";
+import { ProjectInterface } from "../../@types/models";
 
 const projectSchema = new Schema<ProjectInterface>(
   {
@@ -13,6 +13,7 @@ const projectSchema = new Schema<ProjectInterface>(
     description: {
       type: String,
       trim: true,
+      unique: false,
     },
     creator: {
       type: Schema.Types.ObjectId,
@@ -28,7 +29,7 @@ const projectSchema = new Schema<ProjectInterface>(
     teams: [
       {
         type: Schema.Types.ObjectId,
-        ref: "project",
+        ref: "user",
       },
     ],
     status: {

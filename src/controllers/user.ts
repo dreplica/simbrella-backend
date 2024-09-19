@@ -7,7 +7,7 @@ import {
   updateUserService,
 } from "../services";
 
-export const getUserController = async (req: Request, res: Response) => {
+const getUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const { user } = await getUserService(id);
@@ -20,7 +20,7 @@ export const getUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllUserController = async (req: Request, res: Response) => {
+const getAllUser = async (req: Request, res: Response) => {
   try {
     const { users } = await getAllUserService();
     res.status(201).json({ data: users, ok: true });
@@ -32,7 +32,7 @@ export const getAllUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const createUserController = async (req: Request, res: Response) => {
+const createUser = async (req: Request, res: Response) => {
   const { email, name, role } = req.body;
   try {
     const user = await createUserService({ name, email, role });
@@ -45,7 +45,7 @@ export const createUserController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUserController = async (req: Request, res: Response) => {
+const deleteUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
   try {
     const user = await deleteUserService(userId);
@@ -62,7 +62,7 @@ export const deleteUserController = async (req: Request, res: Response) => {
 };
 
 // users can update {name, email}
-export const updateUserController = async (req: Request, res: Response) => {
+const updateUser = async (req: Request, res: Response) => {
   const { id, email, name, role } = req.body;
   try {
     const { user } = await updateUserService({ id, email, name, role });
@@ -71,3 +71,13 @@ export const updateUserController = async (req: Request, res: Response) => {
     res.status(400).json({ message: "Error updating user", error });
   }
 };
+
+const userController = {
+  getUser,
+  getAllUser,
+  createUser,
+  deleteUser,
+  updateUser,
+};
+
+export default userController;

@@ -5,6 +5,7 @@ import app from "./app";
 import http from "http";
 import { HttpError } from "http-errors";
 import mongoConnectionInit from "./db/connnection";
+import wsServer from "./socket";
 
 /**
  * Normalize a port into a number, string, or false.
@@ -57,6 +58,7 @@ const port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
 
 const server = http.createServer(app);
+wsServer.initWsSocket(server);
 
 mongoConnectionInit();
 server.listen(port);

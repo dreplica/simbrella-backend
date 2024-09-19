@@ -1,13 +1,14 @@
 import { Response, Request, NextFunction } from "express";
-import { createUserValidationSchema } from "../utils/validation";
-import { deriveValidationError } from "../utils/utils";
 
-export const createUserMiddleware = (
+import { deriveValidationError } from "../utils/utils";
+import { projectValidation } from "../utils/validation";
+
+const createProjectMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { value, error } = createUserValidationSchema.validate(req.body);
+  const { value, error } = projectValidation.createProject.validate(req.body);
 
   if (error) {
     const errorResponse = deriveValidationError(error);
@@ -19,5 +20,13 @@ export const createUserMiddleware = (
   }
 
   req.body = value;
+  // no need for req.user since we are passing auth middleware
   next();
 };
+
+
+const projectMiddleware = {
+  createProjectMiddleware,
+}
+
+export default projectMiddleware;

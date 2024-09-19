@@ -1,8 +1,9 @@
-import { projectModel } from "../db/models";
-import { ProjectInterface } from "../types/models";
+import { projectModel, userModel } from "../db/models";
+import { ProjectInterface } from "../@types/models";
 import { setEmptyObjectValuesToNull } from "../utils/utils";
+import { PROJECT_STATUS, ROLES } from "../utils/constants";
 
-export const getProjectService = async (projectId: string) => {
+const getProject = async (projectId: string) => {
   const project = await projectModel.findOne({ _id: projectId }).lean();
   if (!project) {
     throw new Error(`project does not exist`);
@@ -10,25 +11,35 @@ export const getProjectService = async (projectId: string) => {
   return { project };
 };
 
-export const getAllProjectService = async () => {
-  const projects = await projectModel.findOne().lean();
+const getAllProject = async () => {
+  const projects = await projectModel.find().lean();
   if (!projects) {
     throw new Error(`No projects available`);
   }
   return { projects };
 };
 
-export const createProjectService = async (projectBody: ProjectInterface) => {
-  const project = await projectModel.create(projectBody);
-
+const createProject = async (projectBody: ProjectInterface, userId: string) => {
+  const populate: ProjectInterface = {
+    title: projectBody.title,
+    description: projectBody.description,
+    creator: userId,
+    status: PROJECT_STATUS["INACTIVE"],
+  };
+  const project = await projectModel.create(populate);
   return { project };
 };
 
-export const updateProjectService = async (projectBody: ProjectInterface) => {
-  const nullifyData = setEmptyObjectValuesToNull<ProjectInterface>(projectBody);
+const updateProject = async (projectBody: ProjectInterface) => {
+  const { tasks, teams, ...nullifyData } =
+    setEmptyObjectValuesToNull<ProjectInterface>(projectBody);
 
   const project = await projectModel
-    .findOneAndUpdate({ _id: nullifyData.id }, nullifyData)
+    .findByIdAndUpdate(
+      { _id: nullifyData.id },
+      { ...nullifyData, $addToSet: { tasks, teams } },
+      { new: true }
+    )
     .lean();
 
   if (!project) {
@@ -38,7 +49,7 @@ export const updateProjectService = async (projectBody: ProjectInterface) => {
   return { project };
 };
 
-export const deleteProjectService = async (projectId: string) => {
+const deleteProject = async (projectId: string) => {
   const project = await projectModel
     .findByIdAndDelete({ _id: projectId })
     .lean();
@@ -49,9 +60,12 @@ export const deleteProjectService = async (projectId: string) => {
   return { project };
 };
 
-export const deleteProjectUserService = async (projectId: string) => {
+const deleteProjectUser = async ({ userId, projectId }) => {
+  const user = await userModel
+    .findByIdAndUpdate({ _id: userId }, { $pop: { projects: projectId } })
+    .lean();
   const project = await projectModel
-    .findByIdAndDelete({ _id: projectId })
+    .findByIdAndUpdate({ _id: projectId }, { $pop: { teams: userId } })
     .lean();
   if (!project) {
     console.error(`project with id ${projectId} does not exist`);
@@ -59,3 +73,14 @@ export const deleteProjectUserService = async (projectId: string) => {
   }
   return { project };
 };
+
+const ProjectService = {
+  getProject,
+  getAllProject,
+  createProject,
+  updateProject,
+  deleteProject,
+  deleteProjectUser,
+};
+
+export default ProjectService;

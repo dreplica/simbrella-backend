@@ -1,4 +1,4 @@
-export * from './user';
-export * from './auth';
-export * from './project';
-export * from './task';
+export { default as userController } from "./user";
+export { default as authController } from "./auth";
+export { default as projectController } from "./project";
+export { default as taskController } from "./task";
