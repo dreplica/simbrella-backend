@@ -3,11 +3,7 @@ export interface TransportOptionTypes {
     port: number;
     secure?: boolean;
     auth: {
-      user: string;
       type: string;
-      clientId: string;
-      clientSecret: string;
-      refreshToken: string;
       pass?: string;
     };
   }

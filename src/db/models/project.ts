@@ -26,12 +26,6 @@ const projectSchema = new Schema<ProjectInterface>(
         ref: "task",
       },
     ],
-    teams: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "user",
-      },
-    ],
     status: {
       type: String,
       enum: ["complete", "active", "inactive"],

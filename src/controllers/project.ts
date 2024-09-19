@@ -1,30 +1,5 @@
-import { Request, Response } from "express";
-import ProjectService from "../services/project";
-
-const getProject = async (req: Request, res: Response) => {
-  const { id: projectId } = req.params;
-  try {
-    const { project } = await ProjectService.getProject(projectId);
-    res.status(201).json({ data: project, ok: true });
-  } catch (error) {
-    res.status(400).json({
-      message: "Error fetching Project",
-      error: (error as Error).message,
-    });
-  }
-};
-
-const getAllProject = async (_req: Request, res: Response) => {
-  try {
-    const { projects } = await ProjectService.getAllProject();
-    res.status(201).json({ data: projects, ok: true });
-  } catch (error) {
-    res.status(400).json({
-      message: "Error fetching Project",
-      error: (error as Error).message,
-    });
-  }
-};
+import { Request, Response } from 'express';
+import ProjectService from '../services/project';
 
 const createProject = async (req: Request, res: Response) => {
   try {
@@ -33,44 +8,57 @@ const createProject = async (req: Request, res: Response) => {
     res.status(201).json({ data: Project, ok: true });
   } catch (error) {
     res.status(400).json({
-      message: "Error creating Project",
+      message: 'Error creating Project',
+      error: (error as Error).message,
+    });
+  }
+};
+
+const getProject = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const { project } = await ProjectService.getProject(id);
+    res.status(201).json({ data: project, ok: true });
+  } catch (error) {
+    res.status(400).json({
+      message: 'Error fetching Project',
+      error: (error as Error).message,
+    });
+  }
+};
+
+const getAllProject = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.user;
+    const { projects } = await ProjectService.getAllProject(id);
+    res.status(201).json({ data: projects, ok: true });
+  } catch (error) {
+    res.status(400).json({
+      message: 'Error fetching Project',
       error: (error as Error).message,
     });
   }
 };
 
 const deleteProject = async (req: Request, res: Response) => {
-  const { id: ProjectId, userId } = req.body;
+  const { id } = req.params;
   try {
-    const Project = await ProjectService.deleteProject(ProjectId);
-    // delete all project in user
-    // delete all task in project
-    // delete project
+    const Project = await ProjectService.deleteProject(id);
     res.status(201).json({ data: Project, ok: true });
   } catch (error) {
     console.error({ error });
-    res
-      .status(400)
-      .json({ message: "Error deleting Project", error: error.message }); // lets have a wrapper that returns error mesage
+    res.status(400).json({ message: 'Error deleting Project', error: error.message }); // lets have a wrapper that returns error mesage
   }
 };
 
-const deleteProjectUser = async (req: Request, res: Response) => {
-  const { userId, projectId } = req.body;
+const removeProjectUser = async (req: Request, res: Response) => {
+  const { userId, id: projectId } = req.body;
   try {
-    const Project = await ProjectService.deleteProjectUser({
-      userId,
-      projectId,
-    });
-    // remove user from project
-    // on user model remove project from user
-    // remove user from task
-    res.status(201).json({ data: Project, ok: true });
+    const { user } = await ProjectService.removeProjectUser(userId, projectId);
+    res.status(201).json({ data: user, ok: true });
   } catch (error) {
     console.error({ error });
-    res
-      .status(400)
-      .json({ message: "Error deleting Project", error: error.message }); // lets have a wrapper that returns error mesage
+    res.status(400).json({ message: 'Error deleting Project', error: error.message }); // lets have a wrapper that returns error mesage
   }
 };
 
@@ -80,7 +68,21 @@ const updateProject = async (req: Request, res: Response) => {
     const { project } = await ProjectService.updateProject(req.body);
     res.status(201).json({ data: project, ok: true });
   } catch (error) {
-    res.status(400).json({ message: "Error updating Project", error });
+    res.status(400).json({ message: 'Error updating Project', error });
+  }
+};
+
+const addUserToProject = async (req: Request, res: Response) => {
+  try {
+    const { userId, id: projectId } = req.body;
+    const {user} = await ProjectService.addUserToProject(projectId, userId);
+
+    res.status(201).json({ data: user, ok: true });
+  } catch (error) {
+    res.status(400).json({
+      message: 'Error adding user to Project',
+      error: (error as Error).message,
+    });
   }
 };
 
@@ -89,8 +91,9 @@ const ProjectController = {
   getAllProject,
   createProject,
   deleteProject,
-  deleteProjectUser,
   updateProject,
+  removeProjectUser,
+  addUserToProject,
 };
 
 export default ProjectController;

@@ -11,7 +11,7 @@ export const adminRegister = async (req: Request, res: Response) => {
       role: ROLES["ADMIN"],
     });
 
-    res.status(200).json({
+    res.status(201).json({
       data: [],
       ok: true,
       message: "Account created, please login",
@@ -26,9 +26,9 @@ export const loginEmail = async (req: Request, res: Response) => {
   const { email } = req.body;
   try {
     // later we will remove the derive value
-    const {token} = await authService.loginEmail(email);
+    await authService.loginEmail(email);
     res.status(200).json({
-      data: token,
+      data: [],
       ok: true,
       message: "Check email for login link",
     });
@@ -39,6 +39,7 @@ export const loginEmail = async (req: Request, res: Response) => {
 };
 
 export const emailConfirm = async (req: Request, res: Response) => {
+  console.log(req.params)
   const { token } = req.params;
 
   try {
@@ -47,6 +48,7 @@ export const emailConfirm = async (req: Request, res: Response) => {
       .status(200)
       .json({ data: user, ok: true, message: "Check email for login link" });
   } catch (error) {
+    console.error({error})
     res.status(400).json({ message: "Error authenticating user", error });
   }
 };

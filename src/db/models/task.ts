@@ -1,7 +1,6 @@
-import { Schema, model } from "mongoose";
-import { TASK_STATUS, MODELS } from "../../utils/constants";
-import { TaskInterface } from "../../@types/models";
-
+import { Schema, model } from 'mongoose';
+import { TASK_STATUS, MODELS } from '../../utils/constants';
+import { TaskInterface } from '../../@types/models';
 
 const taskSchema = new Schema<TaskInterface>(
   {
@@ -19,25 +18,24 @@ const taskSchema = new Schema<TaskInterface>(
     },
     creator: {
       type: Schema.Types.ObjectId,
-      ref: "user",
+      ref: 'user',
     },
     assigned: {
-      type: Schema.Types.ObjectId,
-      ref: "user",
-    },
-    project: {
-      type: Schema.Types.ObjectId,
-      ref: "project",
+      type: Boolean,
     },
     comments: [
       {
-        user: { type: Schema.Types.ObjectId, ref: "user"},
+        _id: {
+          type: Schema.Types.ObjectId,
+        },
+        user: { type: Schema.Types.ObjectId, ref: 'user' },
         message: { type: String },
+        createdAt: { type: Date, default: Date.now },
       },
     ],
     status: {
       type: String,
-      enum: ["todo", "inprogress", "done"],
+      enum: ['todo', 'inprogress', 'done'],
       trim: true,
       default: TASK_STATUS.TODO,
     },

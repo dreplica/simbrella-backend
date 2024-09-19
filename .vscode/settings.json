@@ -1,0 +1,20 @@
+{
+  "workbench.colorTheme": "One Dark Pro Darker", // Or your preferred theme
+  "editor.fontFamily": "Fira Code", // A popular monospaced font with ligatures
+  "editor.fontSize": 12,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.wordWrap": "on",
+  "editor.renderWhitespace": "all",
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+  },
+  "eslint.validateOnSave": true,
+  "typescript.tslint.enable": false, // Use ESLint instead
+  "prettier.useEditorConfig": true,
+  "prettier.semi": false,
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "all",
+}

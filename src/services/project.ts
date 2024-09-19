@@ -1,77 +1,109 @@
-import { projectModel, userModel } from "../db/models";
-import { ProjectInterface } from "../@types/models";
-import { setEmptyObjectValuesToNull } from "../utils/utils";
-import { PROJECT_STATUS, ROLES } from "../utils/constants";
-
-const getProject = async (projectId: string) => {
-  const project = await projectModel.findOne({ _id: projectId }).lean();
-  if (!project) {
-    throw new Error(`project does not exist`);
-  }
-  return { project };
-};
-
-const getAllProject = async () => {
-  const projects = await projectModel.find().lean();
-  if (!projects) {
-    throw new Error(`No projects available`);
-  }
-  return { projects };
-};
+import { projectModel, userModel } from '../db/models';
+import { ProjectInterface, UserInterface } from '../@types/models';
+import { mongooseTransaction, setEmptyObjectValuesToNull } from '../utils/utils';
+import { PROJECT_STATUS } from '../utils/constants';
+import mongoose from 'mongoose';
 
 const createProject = async (projectBody: ProjectInterface, userId: string) => {
   const populate: ProjectInterface = {
     title: projectBody.title,
     description: projectBody.description,
     creator: userId,
-    status: PROJECT_STATUS["INACTIVE"],
+    status: PROJECT_STATUS['INACTIVE'],
   };
   const project = await projectModel.create(populate);
+  await userModel.findByIdAndUpdate(userId, {
+    $push: { projects: project._id },
+  });
   return { project };
 };
 
-const updateProject = async (projectBody: ProjectInterface) => {
-  const { tasks, teams, ...nullifyData } =
-    setEmptyObjectValuesToNull<ProjectInterface>(projectBody);
+const getProject = async (projectId: string) => {
+  const project = await projectModel.findById(projectId).lean();
+  if (!project) {
+    throw new Error(`project does not exist`);
+  }
+  return { project };
+};
+
+const getAllProject = async (id: string) => {
+  const { projects } = (await userModel
+    .findById(id, { projects: 1 })
+    .populate('projects')
+    .lean()) as UserInterface;
+
+  if (!projects) {
+    throw new Error(`No projects available`);
+  }
+  return { projects };
+};
+
+const deleteProject = async (projectId: string) => {
+  return mongooseTransaction<Promise<ProjectInterface>>(
+    async (session: mongoose.mongo.ClientSession) => {
+      const project = await projectModel
+        .findByIdAndDelete({ _id: projectId })
+        .session(session)
+        .lean();
+      if (!project) {
+        console.error(`project with id ${projectId} does not exist`);
+        throw new Error(`project not found`);
+      }
+      await userModel.updateMany(
+        { projects: projectId },
+        { $pull: { projects: projectId } },
+        { session }
+      );
+      return project;
+    }
+  );
+};
+
+const removeProjectUser = async (userId: string, projectId: string) => {
+  const user = await userModel
+    .findByIdAndUpdate({ _id: userId }, { $pull: { projects: projectId } })
+    .lean();
+  if (!user) {
+    console.error(`User not on this project ${projectId}`);
+    throw new Error(`project not found`);
+  }
+  return { user };
+};
+
+const updateProject = async (requestBodyPayload: ProjectInterface) => {
+  const { status, description, title, taskId, id } = setEmptyObjectValuesToNull<
+    ProjectInterface & { taskId?: string }
+  >(requestBodyPayload);
 
   const project = await projectModel
     .findByIdAndUpdate(
-      { _id: nullifyData.id },
-      { ...nullifyData, $addToSet: { tasks, teams } },
+      id,
+      { status, description, title, $push: { tasks: taskId } },
       { new: true }
     )
     .lean();
 
   if (!project) {
-    console.error(`project with id ${nullifyData} does not exist`);
+    console.error(`project with id ${id} does not exist`);
     throw new Error(`project not found`);
   }
   return { project };
 };
 
-const deleteProject = async (projectId: string) => {
-  const project = await projectModel
-    .findByIdAndDelete({ _id: projectId })
-    .lean();
-  if (!project) {
-    console.error(`project with id ${projectId} does not exist`);
-    throw new Error(`project not found`);
-  }
-  return { project };
-};
-
-const deleteProjectUser = async ({ userId, projectId }) => {
+const addUserToProject = async (projectId: string, userId: string) => {
   const user = await userModel
-    .findByIdAndUpdate({ _id: userId }, { $pop: { projects: projectId } })
+    .findByIdAndUpdate(
+      userId,
+      { $push: { projects: projectId } },
+      { new: true }
+    )
     .lean();
-  const project = await projectModel
-    .findByIdAndUpdate({ _id: projectId }, { $pop: { teams: userId } })
-    .lean();
-  if (!project) {
-    console.error(`project with id ${projectId} does not exist`);
-    throw new Error(`project not found`);
+
+  if (!user) {
+    console.error(`User with id ${userId} does not exist`);
+    throw new Error(`User not found`);
   }
-  return { project };
+  return { user };
 };
 
 const ProjectService = {
@@ -80,7 +112,8 @@ const ProjectService = {
   createProject,
   updateProject,
   deleteProject,
-  deleteProjectUser,
+  removeProjectUser,
+  addUserToProject,
 };
 
 export default ProjectService;

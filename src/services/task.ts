@@ -3,8 +3,8 @@ import { TaskInterface } from "../@types/models";
 import { ROLES } from "../utils/constants";
 import { setEmptyObjectValuesToNull } from "../utils/utils";
 
-const getTask = async (taskId: string) => {
-  const task = await taskModel.findOne({ _id: taskId }).lean();
+const getTask = async (id: string) => {
+  const task = await taskModel.findOne({ _id: id }).lean();
   if (!task) {
     throw new Error(`task does not exist`);
   }
@@ -12,8 +12,8 @@ const getTask = async (taskId: string) => {
 };
 
 // i can get all task assigned to me, if not user role i can see all task
-const getAllTask = async (userId: string, role: keyof ROLES) => {
-  const tasks = await taskModel.findOne().lean();
+const getAllTask = async () => {
+  const tasks = await taskModel.find().lean();
   if (!tasks) {
     throw new Error(`No tasks available`);
   }
@@ -22,7 +22,6 @@ const getAllTask = async (userId: string, role: keyof ROLES) => {
 
 const createTask = async (taskBody: TaskInterface) => {
   const task = await taskModel.create(taskBody);
-
   return { task };
 };
 

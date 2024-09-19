@@ -17,9 +17,7 @@ export interface TaskInterface {
   title: string;
   description: string;
   creator: Schema.Types.ObjectId | string;
-  assigned: Schema.Types.ObjectId | string;
-  user: Schema.Types.ObjectId | string;
-  project: Schema.Types.ObjectId | string;
+  assigned: boolean;
   comments: CommentTypes[];
   status: TASK_STATUS;
 }
@@ -33,6 +31,7 @@ export interface UserInterface {
   isDisabled?: boolean;
   notifications?: Schema.Types.ObjectId[] | string[];
   projects?: Schema.Types.ObjectId[] | string[];
+  tasks?: Schema.Types.ObjectId | string;
 }
 
 export interface NotificationInterface {

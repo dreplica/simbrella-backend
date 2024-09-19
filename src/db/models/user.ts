@@ -3,6 +3,8 @@ import { Schema, model } from "mongoose";
 import { MODELS, ROLES } from "../../utils/constants";
 import { UserInterface } from "../../@types/models";
 
+
+// lets add settings, to add notification preference e.g receive email or not
 const userSchema = new Schema<UserInterface>(
   {
     name: {
@@ -37,6 +39,12 @@ const userSchema = new Schema<UserInterface>(
       {
         type: Schema.Types.ObjectId,
         ref: "project",
+      },
+    ],
+    tasks: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "task",
       },
     ],
     isDisabled: {
