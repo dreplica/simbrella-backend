@@ -5,7 +5,7 @@ export interface ProjectInterface {
   creator: Schema.Types.ObjectId | string;
   tasks?: string[];
   teams?: string[];
-  status: PROJECT_STATUS;
+  status?: PROJECT_STATUS;
 }
 
 type CommentTypes = {
@@ -17,7 +17,7 @@ export interface TaskInterface {
   title: string;
   description: string;
   creator: Schema.Types.ObjectId | string;
-  assigned: boolean;
+  isAssigned: boolean;
   comments: CommentTypes[];
   status: TASK_STATUS;
 }

@@ -25,10 +25,6 @@ const userSchema = new Schema<UserInterface>(
       trim: true,
       default: ROLES.MEMBER,
     },
-    token: {
-      type: String,
-      trim: true,
-    },
     notifications: [
       {
         type: Schema.Types.ObjectId,

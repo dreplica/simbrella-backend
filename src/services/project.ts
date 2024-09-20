@@ -5,17 +5,24 @@ import { PROJECT_STATUS } from '../utils/constants';
 import mongoose from 'mongoose';
 
 const createProject = async (projectBody: ProjectInterface, userId: string) => {
-  const populate: ProjectInterface = {
+  const payload: ProjectInterface = {
     title: projectBody.title,
     description: projectBody.description,
     creator: userId,
-    status: PROJECT_STATUS['INACTIVE'],
   };
-  const project = await projectModel.create(populate);
-  await userModel.findByIdAndUpdate(userId, {
-    $push: { projects: project._id },
+
+  return await mongooseTransaction(async (session) => {
+    const project = new projectModel(payload);
+    await userModel.findByIdAndUpdate(
+      userId,
+      {
+        $addToSet: { projects: project._id },
+      },
+      { session }
+    );
+    await project.save({ session });
+    return { project };
   });
-  return { project };
 };
 
 const getProject = async (projectId: string) => {
@@ -92,11 +99,7 @@ const updateProject = async (requestBodyPayload: ProjectInterface) => {
 
 const addUserToProject = async (projectId: string, userId: string) => {
   const user = await userModel
-    .findByIdAndUpdate(
-      userId,
-      { $push: { projects: projectId } },
-      { new: true }
-    )
+    .findByIdAndUpdate(userId, { $push: { projects: projectId } }, { new: true })
     .lean();
 
   if (!user) {

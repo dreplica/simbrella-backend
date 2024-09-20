@@ -7,7 +7,7 @@ import { taskValidation } from '../utils/validation';
 const router = express.Router();
 
 router.get(
-  '/',
+  '/project/:projectId',
   authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
   taskController.getAllTask
 );
@@ -28,27 +28,37 @@ router.put(
   globalMiddleware.inputMiddleware(taskValidation.updateTask),
   taskController.updateTask
 );
-router.put(
-  '/update/status',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER, ROLES.MEMBER]),
-  globalMiddleware.inputMiddleware(taskValidation.updateTaskStatus),
-  taskController.updateTask
-);
-router.put(
-  '/update/comment',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER, ROLES.MEMBER]),
-  globalMiddleware.inputMiddleware(taskValidation.addTaskComment),
-  taskController.updateTask
-);
-router.delete(
-  '/comment/:id',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER, ROLES.MEMBER]),
-  taskController.updateTask
-);
 router.delete(
   '/:id',
   authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
   taskController.deleteTask
+);
+
+// member
+router.put(
+  '/add/member',
+  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
+  globalMiddleware.inputMiddleware(taskValidation.alterMember),
+  taskController.addTaskUser
+);
+router.put(
+  '/remove/member',
+  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
+  globalMiddleware.inputMiddleware(taskValidation.alterMember),
+  taskController.removeTaskUser
+);
+
+// comments
+router.get(
+  '/comment/:id', // get all comments under a task id
+  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER, ROLES.MEMBER]),
+  taskController.getAllComments
+);
+router.put(
+  '/comment',
+  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER, ROLES.MEMBER]),
+  globalMiddleware.inputMiddleware(taskValidation.addTaskComment),
+  taskController.addComment
 );
 
 export default router;

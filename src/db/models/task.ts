@@ -11,17 +11,15 @@ const taskSchema = new Schema<TaskInterface>(
     },
     description: {
       type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
       trim: true,
     },
     creator: {
       type: Schema.Types.ObjectId,
       ref: 'user',
     },
-    assigned: {
+    isAssigned: {
       type: Boolean,
+      default: false,
     },
     comments: [
       {
