@@ -11,5 +11,4 @@ router.post("/login", /*loginMiddleware, */ authController.loginEmail);
 router.get("/login/:token", authController.emailConfirm);
 router.get("/logout", authController.emailConfirm);
 
-
 export default router;

@@ -6,11 +6,7 @@ import { ROLES } from '../utils/constants';
 
 const router = express.Router();
 
-router.get(
-  '/',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
-  projectController.getAllProject
-);
+router.get('/', authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]), projectController.getAllProject);
 router.get(
   '/:id',
   authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER, ROLES.MEMBER]),
@@ -44,6 +40,12 @@ router.delete(
   '/:id',
   authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
   projectController.deleteProject
+);
+// users
+router.get(
+  '/users/:id',
+  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER, ROLES.MEMBER]),
+  projectController.getProjectUsers
 );
 
 export default router;

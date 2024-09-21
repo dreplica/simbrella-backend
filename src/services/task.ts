@@ -97,7 +97,7 @@ const removeTaskUser = async (taskId: string, userId: string) => {
       console.error(`user with id ${userId} does not exist`);
       throw new Error(`user not found`);
     }
-    return { task };
+    return { data: { task, user } };
   });
 };
 

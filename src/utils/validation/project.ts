@@ -1,5 +1,4 @@
 import * as Joi from 'joi';
-import { Schema } from 'mongoose';
 
 const createProject = Joi.object({
   title: Joi.string().min(3).max(30).required().messages({
@@ -19,11 +18,6 @@ const updateProject = Joi.object({
     'string.base': 'id should be a type of string',
     'string.empty': 'id cannot be empty',
     'string.length': 'id length should be 24',
-  }),
-  taskId: Joi.string().length(24).required().messages({
-    'string.base': 'taskId should be a type of string',
-    'string.empty': 'taskId cannot be empty',
-    'string.length': 'taskId length should be 24',
   }),
   title: Joi.string().min(3).max(30).messages({
     'string.base': 'Title should be a type of string',

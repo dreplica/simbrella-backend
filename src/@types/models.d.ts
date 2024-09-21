@@ -24,6 +24,7 @@ export interface TaskInterface {
 
 export interface UserInterface {
   id: string
+  _id: string
   name: string;
   email: string;
   role: ROLES;
@@ -35,13 +36,12 @@ export interface UserInterface {
 }
 
 export interface NotificationInterface {
-  id: string
-  to: Schema.Types.ObjectId | string;
+  id?: string
   title: string;
   message: string;
   has_url: boolean;
-  url: string;
-  status: NOTIFICATION_STATUS;
+  url?: string;
+  status?: NOTIFICATION_STATUS;
 }
 
 export interface TeamsInterface {

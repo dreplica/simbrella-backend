@@ -3,9 +3,12 @@ export interface TransportOptionTypes {
     port: number;
     secure?: boolean;
     auth: {
-      type: string;
+      user: string;
       pass?: string;
     };
+    tls: {
+      rejectUnauthorized: boolean, // Optional, helps with certificate issues
+    },
   }
   
  export interface SendOptionsTypes {

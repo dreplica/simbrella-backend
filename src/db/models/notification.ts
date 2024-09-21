@@ -1,7 +1,7 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose';
 
-import { NOTIFICATION_STATUS, MODELS } from "../../utils/constants";
-import { NotificationInterface } from "../../@types/models";
+import { NOTIFICATION_STATUS, MODELS } from '../../utils/constants';
+import { NotificationInterface } from '../../@types/models';
 
 const notificationSchema = new Schema<NotificationInterface>(
   {
@@ -15,10 +15,6 @@ const notificationSchema = new Schema<NotificationInterface>(
       required: true,
       trim: true,
     },
-    to: {
-      type: Schema.Types.ObjectId,
-      ref: "user",
-    },
     has_url: {
       type: Boolean,
     },
@@ -27,7 +23,7 @@ const notificationSchema = new Schema<NotificationInterface>(
     },
     status: {
       type: String,
-      enum: ["seen", "unseen"],
+      enum: ['seen', 'unseen'],
       trim: true,
       default: NOTIFICATION_STATUS.UNSEEN,
     },
@@ -37,9 +33,6 @@ const notificationSchema = new Schema<NotificationInterface>(
   }
 );
 
-const taskModel = model<NotificationInterface>(
-  MODELS.NOTIFICATION,
-  notificationSchema
-);
+const notificationModel = model<NotificationInterface>(MODELS.NOTIFICATION, notificationSchema);
 
-export default taskModel;
+export default notificationModel;

@@ -20,16 +20,16 @@ const loginEmail = async (email: string) => {
     html: `<div>
     <p>omo Please login using the link below</p>
     <small>Link expires in 2 hours</small>
-    <a href='${process.env['API_ENDPOINT']}/auth/login/${token}'>Login here
+    <a href='${process.env['APP_ENDPOINT']}/token/${token}'>Login here
     </a>
-    or use this link ${process.env['API_ENDPOINT']}/${token}
+    or use this link ${process.env['APP_ENDPOINT']}/token/${token}
     </div>`,
   });
 };
 
 const emailConfirm = async (token: string) => {
   const { data } = decrypt<Record<string, any>>(token);
-  const user = await userModel.findOne({ _id: data.id }).lean();
+  const user = await userModel.findOne({ _id: data.id }, 'name role').lean();
   if (!user) {
     console.error(`user with id ${data.id} does not exist`);
     throw new Error(`Login failed`);
@@ -39,18 +39,10 @@ const emailConfirm = async (token: string) => {
   const userToken = encrypt({ data: { id, role }, exp: '120h' });
   await userModel.updateOne({ id });
 
-  return { user: { ...user, token: userToken } };
+  return { user: { ...user, token: `Bearer ${userToken}` } };
 };
 
-const adminRegister = async ({
-  email,
-  name,
-  role,
-}: {
-  email: string;
-  name: string;
-  role: string;
-}) => {
+const adminRegister = async ({ email, name, role }: { email: string; name: string; role: string }) => {
   const isUser = await userModel.findOne({ email });
   if (isUser) {
     console.error(`User account creation failed, already exist`);

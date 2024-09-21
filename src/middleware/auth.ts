@@ -13,8 +13,8 @@ const authorizeMiddleware = (userRole: ROLES[]) => async (req: Request, res: Res
       errors: req.headers,
     });
   }
-  const token = authHeader.split(' ')[1];
 
+  const token = authHeader.split(' ')[1];
   try {
     const { data } = decrypt<{ data: Record<string, string> }>(token);
     const { id, role } = data;

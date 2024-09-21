@@ -19,8 +19,8 @@ export const sendMail = async (emailDetails: SendOptionsTypes) => {
     port: parseInt(process.env["MAIL_PORT"]) || 587,
     secure: true,
     auth: {
-      pass: process.env["MAIL_AUTH_PASS"],
-      user: process.env["MAIL_AUTH_USER"],
+      pass: process.env["MAIL_AUTH_PASS"] as string,
+      user: process.env["MAIL_AUTH_USER"] as string,
     },
     tls: {
       // ciphers: 'SSLv3',

@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { taskController } from '../controllers';
 import { authMiddleware, globalMiddleware } from '../middleware';
 import { ROLES } from '../utils/constants';
@@ -28,11 +29,7 @@ router.put(
   globalMiddleware.inputMiddleware(taskValidation.updateTask),
   taskController.updateTask
 );
-router.delete(
-  '/:id',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
-  taskController.deleteTask
-);
+router.delete('/:id', authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]), taskController.deleteTask);
 
 // member
 router.put(
@@ -60,5 +57,6 @@ router.put(
   globalMiddleware.inputMiddleware(taskValidation.addTaskComment),
   taskController.addComment
 );
+
 
 export default router;

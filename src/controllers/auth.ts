@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
-import { authService } from "../services";
-import { ROLES } from "../utils/constants";
+import { Request, Response } from 'express';
+import { authService } from '../services';
+import { ROLES } from '../utils/constants';
 
 export const adminRegister = async (req: Request, res: Response) => {
   const { email, name } = req.body;
@@ -8,17 +8,17 @@ export const adminRegister = async (req: Request, res: Response) => {
     await authService.adminRegister({
       email,
       name,
-      role: ROLES["ADMIN"],
+      role: ROLES['ADMIN'],
     });
 
     res.status(201).json({
       data: [],
-      ok: true,
-      message: "Account created, please login",
+      success: true,
+      message: 'Account created, please login',
     });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ message: "Error creating account", error });
+    res.status(400).json({ message: 'Error creating account', error });
   }
 };
 
@@ -27,29 +27,28 @@ export const loginEmail = async (req: Request, res: Response) => {
   try {
     // later we will remove the derive value
     await authService.loginEmail(email);
+    console.log('email sent');
     res.status(200).json({
       data: [],
-      ok: true,
-      message: "Check email for login link",
+      success: true,
+      message: 'Check email for login link',
     });
   } catch (error) {
-    console.error(error)
-    res.status(400).json({ message: "Error authenticating user", error });
+    console.error(error);
+    res.status(400).json({ message: 'Error authenticating user', error });
   }
 };
 
 export const emailConfirm = async (req: Request, res: Response) => {
-  console.log(req.params)
+  console.log(req.params);
   const { token } = req.params;
 
   try {
     const { user } = await authService.emailConfirm(token);
-    res
-      .status(200)
-      .json({ data: user, ok: true, message: "Check email for login link" });
+    res.status(200).json({ data: user, success: true, message: 'Login successFull' });
   } catch (error) {
-    console.error({error})
-    res.status(400).json({ message: "Error authenticating user", error });
+    console.error({ error });
+    res.status(400).json({ message: 'Error authenticating user', error });
   }
 };
 
