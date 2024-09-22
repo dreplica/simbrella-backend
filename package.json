@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nodemon ./dist/index",
-    "start": "node ./bin/www",
+    "start": "node ./dist/index.js",
     "tsc": "tsc",
     "ts-watch": "tsc --w"
   },
