@@ -3,7 +3,13 @@ import { TaskInterface } from '../@types/models';
 import { mongooseTransaction, setEmptyObjectValuesToNull } from '../utils/utils';
 
 const getTask = async (id: string) => {
-  const task = await taskModel.findById(id).lean();
+  const task = await taskModel
+    .findById(id)
+    .populate([
+      { path: 'assignedTo', select: 'name role' },
+      { path: 'comments.user', select: 'name' },
+    ])
+    .lean();
   if (!task) {
     throw new Error(`task does not exist`);
   }
@@ -11,7 +17,10 @@ const getTask = async (id: string) => {
 };
 
 const getAllTask = async (projectId: string) => {
-  const tasks = await projectModel.findById(projectId).populate('tasks').lean();
+  const tasks = await projectModel
+    .findById(projectId)
+    .populate({ path: 'tasks', populate: { path: 'assignedTo', select: '_id name role' } })
+    .lean();
 
   if (!tasks) {
     console.error(`Failed to fetch task from project with id ${projectId}`);
@@ -20,19 +29,14 @@ const getAllTask = async (projectId: string) => {
   return { tasks };
 };
 
-type CreateTaskType = TaskInterface & { projectId: string; assignedTo: string };
+type CreateTaskType = TaskInterface & { projectId: string };
 const createTask = async (taskPayload: CreateTaskType) => {
-  const { title, description, assignedTo, projectId } = setEmptyObjectValuesToNull(taskPayload);
+  const { title, description, projectId } = setEmptyObjectValuesToNull(taskPayload);
   return await mongooseTransaction(async (session) => {
     const task = new taskModel({
       title,
       description,
-      isAssigned: !!assignedTo,
     });
-
-    if (assignedTo) {
-      await userModel.findByIdAndUpdate(assignedTo, { $addToSet: { tasks: task._id } }, { session });
-    }
 
     await projectModel.findByIdAndUpdate(projectId, { $addToSet: { tasks: task._id } });
     await task.save({ session });
@@ -41,8 +45,14 @@ const createTask = async (taskPayload: CreateTaskType) => {
 };
 
 const updateTask = async (taskPayload: TaskInterface) => {
-  const { id, title, description, status } = setEmptyObjectValuesToNull(taskPayload);
-  const task = await taskModel.findByIdAndUpdate(id, { description, title, status }, { new: true }).lean();
+  const { id, title, description, status, assignedTo } = setEmptyObjectValuesToNull(taskPayload);
+  const task = await taskModel
+    .findByIdAndUpdate(id, { description, title, status }, { new: true })
+    .populate([
+      { path: 'assignedTo', select: 'name role' },
+      { path: 'comments.user', select: 'name' },
+    ])
+    .lean();
 
   if (!task) {
     console.error(`task with id ${id} does not exist`);
@@ -57,47 +67,11 @@ const deleteTask = async (taskId: string) => {
 
     await projectModel.findOneAndUpdate({ tasks: taskId }, { $pull: { tasks: taskId } }, { session }).lean();
 
-    await userModel.findOneAndUpdate({ tasks: taskId }, { $pull: { tasks: taskId } }, { session }).lean();
-
     if (!task) {
       console.error(`task with id ${taskId} does not exist`);
       throw new Error(`task not found`);
     }
     return { task };
-  });
-};
-
-const addTaskUser = async (taskId: string, userId: string) => {
-  return mongooseTransaction(async (session) => {
-    const task = await taskModel.findByIdAndUpdate(taskId, { isAssigned: true }, { session }).lean();
-    if (!task) {
-      console.error(`task with id ${taskId} does not exist`);
-      throw new Error(`task not found`);
-    }
-
-    const user = await userModel.findByIdAndUpdate(userId, { $addToSet: { tasks: taskId } }, { session }).lean();
-    if (!user) {
-      console.error(`user with id ${userId} does not exist`);
-      throw new Error(`user not found`);
-    }
-    return { data: { user, task } };
-  });
-};
-
-const removeTaskUser = async (taskId: string, userId: string) => {
-  return mongooseTransaction(async (session) => {
-    const task = await taskModel.findByIdAndUpdate(taskId, { isAssigned: false }, { session }).lean();
-    if (!task) {
-      console.error(`task with id ${taskId} does not exist`);
-      throw new Error(`task not found`);
-    }
-
-    const user = await userModel.findByIdAndUpdate(userId, { $pull: { tasks: taskId } }, { session }).lean();
-    if (!user) {
-      console.error(`user with id ${userId} does not exist`);
-      throw new Error(`user not found`);
-    }
-    return { data: { task, user } };
   });
 };
 
@@ -115,13 +89,17 @@ const addComment = async (taskId: string, userId: string, message: string) => {
       },
       { new: true }
     )
+    .populate([
+      { path: 'assignedTo', select: 'name role' },
+      { path: 'comments.user', select: 'name' },
+    ])
     .lean();
   if (!task) {
     console.error(`task with id ${taskId} does not exist`);
     throw new Error(`task not found`);
   }
 
-  return { comment: task.comments[task.comments.length - 1] };
+  return { task };
 };
 
 const getAllComments = async (taskId: string) => {
@@ -142,8 +120,6 @@ const taskService = {
   createTask,
   updateTask,
   deleteTask,
-  addTaskUser,
-  removeTaskUser,
   addComment,
   getAllComments,
 };

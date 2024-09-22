@@ -1,9 +1,7 @@
 import { projectModel, userModel } from '../db/models';
 import { ProjectInterface, UserInterface } from '../@types/models';
-import { mongooseTransaction, setEmptyObjectValuesToNull } from '../utils/utils';
-import { PROJECT_STATUS } from '../utils/constants';
+import { getProjectUsersWithTaskCount, mongooseTransaction, setEmptyObjectValuesToNull } from '../utils/utils';
 import mongoose from 'mongoose';
-import { populate } from 'dotenv';
 
 const createProject = async (projectBody: ProjectInterface, userId: string) => {
   const payload: ProjectInterface = {
@@ -32,6 +30,7 @@ const getProject = async (projectId: string) => {
     .populate([
       { path: 'tasks', populate: { path: 'creator', model: 'user', select: 'name' } },
       { path: 'creator', model: 'user', select: 'name' },
+      { path: 'members', model: 'user', select: 'name role' },
     ])
     .lean()
     .exec();
@@ -42,10 +41,14 @@ const getProject = async (projectId: string) => {
 };
 
 const getAllProject = async (id: string) => {
-  const { projects } = (await userModel
-    .findById(id, { projects: 1 })
-    .populate({ path: 'projects', populate: { path: 'tasks' } })
-    .lean()) as UserInterface;
+  const projects = await projectModel
+    .find({ $or: [{ creator: id }, { members: { $in: [id] } }] })
+    .populate([
+      { path: 'members', select: 'name role' },
+      { path: 'tasks', select: 'title description status' },
+      { path: 'tasks.assignedTo', select: 'name' },
+    ])
+    .lean();
 
   if (!projects) {
     throw new Error(`No projects available`);
@@ -66,46 +69,42 @@ const deleteProject = async (projectId: string) => {
 };
 
 const removeProjectUser = async (userId: string, projectId: string) => {
-  const user = await userModel.findByIdAndUpdate({ _id: userId }, { $pull: { projects: projectId } }).lean();
-  if (!user) {
-    console.error(`User not on this project ${projectId}`);
-    throw new Error(`project not found`);
-  }
-  return { user };
-};
-
-const updateProject = async (requestBodyPayload: ProjectInterface) => {
-  const { status, description, title, id } = setEmptyObjectValuesToNull<ProjectInterface & { taskId?: string }>(
-    requestBodyPayload
-  );
-
-  const project = await projectModel.findByIdAndUpdate(id, { status, description, title }, { new: true }).lean();
-
+  const project = await projectModel
+    .findByIdAndUpdate(projectId, { $pull: { members: userId } }, { new: true })
+    .populate([
+      { path: 'members', select: 'name role _id' },
+      { path: 'tasks' },
+      { path: 'tasks.assignedTo', select: 'name' },
+    ])
+    .lean();
   if (!project) {
-    console.error(`project with id ${id} does not exist`);
-    throw new Error(`project not found`);
+    throw new Error(`project/user not found`);
   }
   return { project };
 };
 
-const addUserToProject = async (projectId: string, userId: string) => {
-  const user = await userModel.findByIdAndUpdate(userId, { $push: { projects: projectId } }, { new: true }).lean();
+const updateProject = async (requestBodyPayload: ProjectInterface) => {
+  const {
+    status,
+    description,
+    title,
+    id,
+    taskId: tasks,
+    memberId: members,
+  } = setEmptyObjectValuesToNull<ProjectInterface & { taskId?: string; memberId?: string }>(requestBodyPayload);
 
-  if (!user) {
-    console.error(`User with id ${userId} does not exist`);
-    throw new Error(`User not found`);
-  }
-  return { user };
-};
-
-const getProjectUsers = async (projectId: string) => {
-  const project = await userModel
-    .find({projects: projectId} , 'name _id ')
-    .populate('comments.user', 'name _id')
+  const project = await projectModel
+    .findByIdAndUpdate(id, { status, description, title, $addToSet: { tasks, members } }, { new: true })
+    .populate([
+      { path: 'members', select: 'name role _id' },
+      { path: 'tasks' },
+      { path: 'tasks.assignedTo', select: 'name' },
+    ])
     .lean();
+
   if (!project) {
-    console.error(`task with id ${'projects'} does not exist`);
-    throw new Error(`task not found`);
+    console.error(`project with id ${id} does not exist`);
+    throw new Error(`project not found`);
   }
   return { project };
 };
@@ -117,8 +116,6 @@ const ProjectService = {
   updateProject,
   deleteProject,
   removeProjectUser,
-  addUserToProject,
-  getProjectUsers,
 };
 
 export default ProjectService;

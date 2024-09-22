@@ -13,7 +13,8 @@ export interface TransportOptionTypes {
   
  export interface SendOptionsTypes {
     from: string;
-    to: string;
+    to?: string;
+    bcc?: string;
     subject: string;
     text?: string;
     html?: string;

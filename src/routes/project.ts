@@ -24,28 +24,17 @@ router.put(
   globalMiddleware.inputMiddleware(projectValidation.updateProject),
   projectController.updateProject
 );
-router.post(
+router.put(
   '/remove/member',
   authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
   globalMiddleware.inputMiddleware(projectValidation.removeProjectUser),
   projectController.removeProjectUser
 );
-router.post(
-  '/add/member',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
-  globalMiddleware.inputMiddleware(projectValidation.addUserToProject),
-  projectController.addUserToProject
-);
+
 router.delete(
   '/:id',
   authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
   projectController.deleteProject
-);
-// users
-router.get(
-  '/users/:id',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER, ROLES.MEMBER]),
-  projectController.getProjectUsers
 );
 
 export default router;

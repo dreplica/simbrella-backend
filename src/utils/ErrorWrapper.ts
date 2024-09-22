@@ -16,7 +16,6 @@ const errorLogger = async (err: unknown, errorMessage = "An error occurred.") =>
       message: errorMessage,
       errorDetails: error.stack || error.toString(),
     });
-    console.log("Error saved to database");
   } catch (saveError) {
     console.error("Failed to save error to database:", saveError);
   }

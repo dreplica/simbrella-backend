@@ -43,7 +43,6 @@ const authorizeMiddleware = (userRole: ROLES[]) => async (req: Request, res: Res
     req.user = { id, role };
     next();
   } catch (error) {
-    console.log(error);
     return res.status(401).json({
       success: false,
       message: 'Problem authorizing user, please try login in',

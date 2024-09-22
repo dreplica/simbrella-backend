@@ -15,6 +15,11 @@ const notificationSchema = new Schema<NotificationInterface>(
       required: true,
       trim: true,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
+    },
+
     has_url: {
       type: Boolean,
     },

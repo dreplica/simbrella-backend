@@ -7,15 +7,15 @@ import cors from 'cors';
 import routes from './routes';
 
 var app = express();
-const corsOptions = {
-  origin: 'http://localhost:3000', // Change this to your frontend's URL
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, PREFLIGHT',
-  allowedHeaders: ['Content-Type', 'Authorization'], // Add any custom headers you expect
+// const corsOptions = {
+//   origin: 'http://localhost:3000', // Change this to your frontend's URL
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, PREFLIGHT',
+//   allowedHeaders: ['Content-Type', 'Authorization'], // Add any custom headers you expect
 
-  credentials: true, // Allows sending cookies if needed
-};
+//   credentials: true, // Allows sending cookies if needed
+// };
 // view engine setup
-app.use(cors(corsOptions));
+app.use(cors({origin: '*'}));
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');

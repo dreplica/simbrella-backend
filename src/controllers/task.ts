@@ -31,8 +31,8 @@ const getAllTask = async (req: Request, res: Response) => {
 
 const createTask = async (req: Request, res: Response) => {
   try {
-    const user = await taskService.createTask(req.body);
-    res.status(201).json({ data: user, success: true });
+    const {task} = await taskService.createTask(req.body);
+    res.status(201).json({ data: task, success: true });
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -63,27 +63,6 @@ const deleteTask = async (req: Request, res: Response) => {
   }
 };
 
-const addTaskUser = async (req: Request, res: Response) => {
-  const { id, userId } = req.body;
-  try {
-    await taskService.addTaskUser(id, userId);
-    res.status(201).json({ data: [], success: true });
-  } catch (error) {
-    res.status(400).json({ success: false, message: 'Error adding user', error });
-  }
-};
-
-// users can update {name, email}
-const removeTaskUser = async (req: Request, res: Response) => {
-  const { id, userId } = req.body;
-  try {
-    await taskService.removeTaskUser(id, userId);
-    res.status(201).json({ data: [], success: true });
-  } catch (error) {
-    res.status(400).json({ success: false, message: 'Error removing user', error: (error as Error).message });
-  }
-};
-
 // users can update {name, email}
 const addComment = async (req: Request, res: Response) => {
   const { id, message, userId } = req.body;
@@ -111,8 +90,6 @@ const taskController = {
   createTask,
   deleteTask,
   updateTask,
-  addTaskUser,
-  removeTaskUser,
   getAllComments,
   addComment,
 };

@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { userService } from '../services';
+import { mongooseTransaction } from '../utils/utils';
 
 const getUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const { user } = await userService.getUser(id);
-    res.status(201).json({ data: user, ok: true });
+    res.status(201).json({ data: user, success: true });
   } catch (error) {
     res.status(400).json({
       message: 'Error fetching user',
@@ -17,7 +18,7 @@ const getUser = async (req: Request, res: Response) => {
 const getAllUser = async (req: Request, res: Response) => {
   try {
     const { users } = await userService.getAllUser();
-    res.status(201).json({ data: users, ok: true });
+    res.status(201).json({ data: users, success: true });
   } catch (error) {
     res.status(400).json({
       message: 'Error fetching user',
@@ -29,8 +30,8 @@ const getAllUser = async (req: Request, res: Response) => {
 const createUser = async (req: Request, res: Response) => {
   const { email, name, role } = req.body;
   try {
-    const user = await userService.createUser({ name, email, role });
-    res.status(201).json({ data: user, ok: true });
+    const {user} = await userService.createUser({ name, email, role });
+    res.status(201).json({ data: user, success: true });
   } catch (error) {
     res.status(400).json({
       message: 'Error creating user',
@@ -40,13 +41,10 @@ const createUser = async (req: Request, res: Response) => {
 };
 
 const deleteUser = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const { id } = req.params;
   try {
-    const user = await userService.deleteUser(userId);
-    // delete user from project, delete user from task
-    // revert task to unassigned
-    // if manager revert project manager to admin
-    res.status(201).json({ data: user, ok: true });
+    const {user} = await userService.deleteUser(id);
+    res.status(201).json({ data: user, success: true });
   } catch (error) {
     console.error({ error });
     res.status(400).json({ message: 'Error deleting user', error: (error as Error).message }); // lets have a wrapper that returns error mesage
@@ -57,7 +55,7 @@ const deleteUser = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
   try {
     const { user } = await userService.updateUser(req.body);
-    res.status(201).json({ data: user, ok: true });
+    res.status(201).json({ data: user, success: true });
   } catch (error) {
     res.status(400).json({ message: 'Error updating user', error });
   }

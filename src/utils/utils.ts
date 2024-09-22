@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import mongoose from 'mongoose';
+import { projectModel, userModel } from '../db/models';
 
 const validationErrorCodes = {
   'string.base': 'STRING_BASE_ERROR',
@@ -47,3 +48,54 @@ export const mongooseTransaction = async <T>(
     session.endSession(); // Clean up the session
   }
 };
+
+export const getProjectUsersWithTaskCount= async (projectId)  =>{
+  try {
+    const result = await userModel.aggregate([
+      {
+        $lookup: {
+          from: 'projects', // The name of the projects collection
+          localField: 'projects',
+          foreignField: '_id',
+          as: 'userProjects'
+        }
+      },
+      {
+        $match: {
+          'userProjects._id': new mongoose.Types.ObjectId(projectId) // Match users with the specific project
+        }
+      },
+      {
+        $lookup: {
+          from: 'tasks', // The name of the tasks collection
+          localField: 'tasks',
+          foreignField: '_id',
+          as: 'userTasks'
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          email: 1,
+          taskCount: {
+            $size: {
+              $filter: {
+                input: '$userTasks',
+                as: 'task',
+                cond: {
+                  $in: [projectId, { $ifNull: ['$$task.projects', []] }] // Default to an empty array if missing
+                }
+              }
+            }
+          }
+        }
+      }
+    ]);
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching users and task counts:', error);
+    throw error;
+  }
+}

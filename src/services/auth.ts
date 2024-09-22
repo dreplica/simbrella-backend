@@ -20,9 +20,9 @@ const loginEmail = async (email: string) => {
     html: `<div>
     <p>omo Please login using the link below</p>
     <small>Link expires in 2 hours</small>
-    <a href='${process.env['APP_ENDPOINT']}/token/${token}'>Login here
+    <a href='${process.env['APP_URL']}/token/${token}'>Login here
     </a>
-    or use this link ${process.env['APP_ENDPOINT']}/token/${token}
+    or use this link ${process.env['APP_URL']}/token/${token}
     </div>`,
   });
 };
@@ -39,7 +39,7 @@ const emailConfirm = async (token: string) => {
   const userToken = encrypt({ data: { id, role }, exp: '120h' });
   await userModel.updateOne({ id });
 
-  return { user: { ...user, token: `Bearer ${userToken}` } };
+  return { user: { ...user, token: `${userToken}` } };
 };
 
 const adminRegister = async ({ email, name, role }: { email: string; name: string; role: string }) => {

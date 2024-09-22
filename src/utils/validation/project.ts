@@ -19,6 +19,11 @@ const updateProject = Joi.object({
     'string.empty': 'id cannot be empty',
     'string.length': 'id length should be 24',
   }),
+  memberId: Joi.string().length(24).messages({
+    'string.base': 'member should be a type of string',
+    'string.empty': 'member cannot be empty',
+    'string.length': 'member length should be 24',
+  }),
   title: Joi.string().min(3).max(30).messages({
     'string.base': 'Title should be a type of string',
     'string.empty': 'Title cannot be empty',
@@ -37,28 +42,18 @@ const updateProject = Joi.object({
 
 // remove either add user or remove project user, 
 // they are the same and can be shared
-const addUserToProject = Joi.object({
-  id: Joi.string().required().required().messages({
-    'string.base': 'id should be a type of string',
-  }),
-  userId: Joi.string().required().messages({
-    'string.base': 'userId should be a type of string',
-  }),
-});
-
 const removeProjectUser = Joi.object({
   id: Joi.string().required().required().messages({
     'string.base': 'id should be a type of string',
   }),
-  userId: Joi.string().required().messages({
-    'string.base': 'userId should be a type of string',
+  memberId: Joi.string().required().messages({
+    'string.base': 'memberId should be a type of string',
   }),
 });
 
 const projectValidation = {
   createProject,
   updateProject,
-  addUserToProject,
   removeProjectUser,
 };
 

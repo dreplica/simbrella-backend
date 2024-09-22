@@ -1,9 +1,10 @@
 export interface ProjectInterface {
-  id?: string
+  id?: string;
   title: string;
   description: string;
   creator: Schema.Types.ObjectId | string;
   tasks?: string[];
+  members?: string[];
   teams?: string[];
   status?: PROJECT_STATUS;
 }
@@ -13,18 +14,18 @@ type CommentTypes = {
   message: string;
 };
 export interface TaskInterface {
-  id: string
+  id: string;
   title: string;
   description: string;
   creator: Schema.Types.ObjectId | string;
-  isAssigned: boolean;
+  assignedTo: Schema.Types.ObjectId | string;
   comments: CommentTypes[];
   status: TASK_STATUS;
 }
 
 export interface UserInterface {
-  id: string
-  _id: string
+  id: string;
+  _id: string;
   name: string;
   email: string;
   role: ROLES;
@@ -36,19 +37,35 @@ export interface UserInterface {
 }
 
 export interface NotificationInterface {
-  id?: string
+  id?: string;
   title: string;
   message: string;
+  user: Schema.Types.ObjectId | string;
   has_url: boolean;
   url?: string;
   status?: NOTIFICATION_STATUS;
 }
 
 export interface TeamsInterface {
-  id: string
+  id: string;
   creator: Schema.Types.ObjectId | string;
   name: string;
   slug: string;
   users: Schema.Types.ObjectId[] | string[];
   projects: Schema.Types.ObjectId[] | string[];
 }
+
+export type Realtime = {
+  type: 'task' | '';
+  operation: 'create' | 'delete' | 'update' | 'comment' | 'success';
+  payload: {
+    title?: string;
+    description?: string;
+    assignedTo?: string;
+    projectId?: string;
+    status?: string;
+    message?: string;
+    userId?: string;
+    id: string;
+  };
+};

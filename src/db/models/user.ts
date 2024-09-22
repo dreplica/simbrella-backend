@@ -25,24 +25,6 @@ const userSchema = new Schema<UserInterface>(
       trim: true,
       default: ROLES.MEMBER,
     },
-    notifications: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "notification",
-      },
-    ],
-    projects: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "project",
-      },
-    ],
-    tasks: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "task",
-      },
-    ],
     isDisabled: {
       type: Boolean,
       default: false,

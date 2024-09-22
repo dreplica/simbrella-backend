@@ -7,8 +7,8 @@ const router = express.Router();
 
 // would add another middleware for manager only
 // router.post("/login", loginUserMiddleware, loginUser);
-router.get('/', /*authRoleMiddleware, */ userController.getUser);
-router.get('/:id', /*authRoleUserMiddleware, */ userController.getAllUser);
+router.get('/', /*authRoleUserMiddleware, */ userController.getAllUser);
+router.get('/:id', /*authRoleMiddleware, */ userController.getUser);
 router.post(
   '/create',
   globalMiddleware.inputMiddleware(userValidation.createUser),

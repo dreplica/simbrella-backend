@@ -31,20 +31,6 @@ router.put(
 );
 router.delete('/:id', authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]), taskController.deleteTask);
 
-// member
-router.put(
-  '/add/member',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
-  globalMiddleware.inputMiddleware(taskValidation.alterMember),
-  taskController.addTaskUser
-);
-router.put(
-  '/remove/member',
-  authMiddleware.authorizeMiddleware([ROLES.ADMIN, ROLES.MANAGER]),
-  globalMiddleware.inputMiddleware(taskValidation.alterMember),
-  taskController.removeTaskUser
-);
-
 // comments
 router.get(
   '/comment/:id', // get all comments under a task id

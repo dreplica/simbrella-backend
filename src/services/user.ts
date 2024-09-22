@@ -1,11 +1,9 @@
-import { userModel } from "../db/models";
-import { UserInterface } from "../@types/models";
-import { setEmptyObjectValuesToNull } from "../utils/utils";
+import { projectModel, taskModel, userModel } from '../db/models';
+import { UserInterface } from '../@types/models';
+import { mongooseTransaction, setEmptyObjectValuesToNull } from '../utils/utils';
 
 const getUser = async (userId: string) => {
-  const user = await userModel
-    .findOne({ _id: userId, isDisabled: false })
-    .lean();
+  const user = await userModel.findOne({ _id: userId, isDisabled: false }).lean();
 
   if (!user) {
     throw new Error(`User does not exist`);
@@ -14,16 +12,14 @@ const getUser = async (userId: string) => {
 };
 
 const getAllUser = async () => {
-  const users = await userModel.findOne({ isDisabled: false }).lean();
+  const users = await userModel.find().lean();
   if (!users) {
     throw new Error(`No users in management`);
   }
   return { users };
 };
 
-const createUser = async (
-  userBody: Pick<UserInterface, "name" | "email" | "role">
-) => {
+const createUser = async (userBody: Pick<UserInterface, 'name' | 'email' | 'role'>) => {
   const { name, email, role } = userBody;
 
   const userExist = await userModel.findOne({ email }).lean();
@@ -42,9 +38,7 @@ const createUser = async (
 
 const updateUser = async (userBody: UserInterface) => {
   const nullifyEmptyData = setEmptyObjectValuesToNull<UserInterface>(userBody);
-  const user = await userModel
-    .findOneAndUpdate({ _id: nullifyEmptyData.id }, nullifyEmptyData)
-    .lean();
+  const user = await userModel.findOneAndUpdate({ _id: nullifyEmptyData.id }, nullifyEmptyData).lean();
 
   if (!user) {
     console.error(`user with id ${nullifyEmptyData.id} does not exist`);
@@ -54,12 +48,16 @@ const updateUser = async (userBody: UserInterface) => {
 };
 
 const deleteUser = async (userId: string) => {
-  const user = await userModel.findByIdAndDelete({ _id: userId }).lean();
-  if (!user) {
-    console.error(`user with id ${userId} does not exist`);
-    throw new Error(`user not found`);
-  }
-  return { user };
+  return mongooseTransaction(async (session) => {
+    const user = await userModel.findByIdAndDelete({ _id: userId }, { session }).lean();
+    if (!user) {
+      console.error(`user with id ${userId} does not exist`);
+      throw new Error(`user not found`);
+    }
+    await projectModel.updateMany({members: userId}, {$pull: {members: userId}}, {session})
+    await taskModel.updateMany({assignedTo: userId}, {$set: {assignedTo: null}}, {session})
+    return { user };
+  });
 };
 
 const userService = {

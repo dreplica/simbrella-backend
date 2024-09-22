@@ -12,7 +12,7 @@ const inputMiddleware =
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: errorResponse,
+        error: errorResponse[0].message,
       });
     }
 

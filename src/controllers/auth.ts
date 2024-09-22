@@ -27,7 +27,6 @@ export const loginEmail = async (req: Request, res: Response) => {
   try {
     // later we will remove the derive value
     await authService.loginEmail(email);
-    console.log('email sent');
     res.status(200).json({
       data: [],
       success: true,
@@ -40,7 +39,6 @@ export const loginEmail = async (req: Request, res: Response) => {
 };
 
 export const emailConfirm = async (req: Request, res: Response) => {
-  console.log(req.params);
   const { token } = req.params;
 
   try {

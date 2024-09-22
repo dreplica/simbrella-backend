@@ -17,9 +17,9 @@ const taskSchema = new Schema<TaskInterface>(
       type: Schema.Types.ObjectId,
       ref: 'user',
     },
-    isAssigned: {
-      type: Boolean,
-      default: false,
+    assignedTo: {
+      type: Schema.Types.ObjectId,
+      ref: 'user',
     },
     comments: [
       {
